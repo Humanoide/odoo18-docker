@@ -1,0 +1,19 @@
+docker exec -it odoo17-web-1 bash
+
+
+odoo --no-xmlrpc --db_host=172.17.0.2 --db_user=odoo --db_password=odoo --stop-after-init -u all -d nombrebasedatos
+
+odoo --db_host=172.19.0.3 --db_user=odoo --db_password=odoo --no-xmlrpc --stop-after-init -u all -d nombrebasededatos
+
+=========================================================================================================================
+
+
+Antiguo sin base de datos
+
+
+
+
+docker exec -it odoo16-web-1 bash
+
+
+odoo --no-xmlrpc --stop-after-init -u all -d nombrebasedatos

@@ -1,0 +1,4 @@
+wget https://www.webmin.com/download/deb/webmin-current.deb
+
+
+sudo apt install ./webmin-current.deb

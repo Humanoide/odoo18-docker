@@ -1,7 +1,3 @@
-wget https://www.webmin.com/download/deb/webmin-current.deb
-
-
-sudo apt install ./webmin-current.deb
 
 
  OPCIÓN 1: Instalar Webmin directamente desde .deb pero resolviendo manualmente dependencias

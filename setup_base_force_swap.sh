@@ -75,7 +75,11 @@ install_webmin(){
   log "Configurando repositorio oficial de Webmin..."
   TMP_SCRIPT="$(mktemp)"
   curl -fsSL https://raw.githubusercontent.com/webmin/webmin/master/webmin-setup-repo.sh -o "$TMP_SCRIPT"
-  $SUDO sh "$TMP_SCRIPT"
+  
+  # Responde "yes" automáticamente a cualquier prompt de ese script
+  # (solo afecta a ese script)
+  yes | $SUDO sh "$TMP_SCRIPT"
+
   rm -f "$TMP_SCRIPT"
 
   log "Instalando Webmin..."

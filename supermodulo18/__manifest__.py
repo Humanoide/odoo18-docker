@@ -192,7 +192,6 @@ Long description of module's purpose
         'project_mrp_account',
         'project_mrp_sale',
         'product_margin',
-        'marketing_card',
         'mrp',
         'mail_bot',
         'mail_bot_hr',

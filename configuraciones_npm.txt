@@ -16,7 +16,7 @@ Define location *
 
 /websocket
 
-odoo17-web-1
+odoo18-web-1
 
 8072
 
@@ -37,7 +37,7 @@ Define location *
 
 /
 
-odoo17-web-1
+odoo18-web-1
 
 8069
 

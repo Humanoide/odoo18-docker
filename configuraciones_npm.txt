@@ -2,7 +2,7 @@
 
 Forward Hostname / IP*
 
-odoo17-web-1
+odoo18-web-1
 
 8069
 

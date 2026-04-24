@@ -77,7 +77,8 @@ apt install -y \
   gnupg \
   lsb-release \
   wget \
-  unzip
+  unzip \
+  mc
 
 #######################################
 # 3. DOCKER

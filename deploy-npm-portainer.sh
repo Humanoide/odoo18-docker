@@ -4,33 +4,34 @@ set -euo pipefail
 PORTAINER_URL="http://localhost:9000"
 USER="admin"
 PASS="000000000000"
+STACK_FILE="npm-compose.yml"
 
-echo "== Login Portainer =="
+echo "== LOGIN =="
 
-RESPONSE=$(curl -s -X POST "$PORTAINER_URL/api/auth" \
+TOKEN=$(curl -s -X POST "$PORTAINER_URL/api/auth" \
   -H "Content-Type: application/json" \
-  -d "{\"Username\":\"$USER\",\"Password\":\"$PASS\"}")
+  -d "{\"Username\":\"$USER\",\"Password\":\"$PASS\"}" \
+  | jq -r .jwt)
 
-echo "DEBUG LOGIN RESPONSE:"
-echo "$RESPONSE"
-
-TOKEN=$(echo "$RESPONSE" | jq -r '.jwt // empty')
-
-if [[ -z "$TOKEN" ]]; then
-  echo "❌ ERROR: no se pudo obtener token"
+if [[ -z "$TOKEN" || "$TOKEN" == "null" ]]; then
+  echo "❌ No token"
   exit 1
 fi
 
-echo "✔ Token OK"
+echo "== GET ENDPOINT =="
 
-echo "== Creando stack Nginx Proxy Manager =="
+ENDPOINT_ID=$(curl -s "$PORTAINER_URL/api/endpoints" \
+  -H "Authorization: Bearer $TOKEN" \
+  | jq -r '.[0].Id')
 
-RESPONSE_STACK=$(curl -s -X POST "$PORTAINER_URL/api/stacks" \
+echo "Endpoint ID: $ENDPOINT_ID"
+
+echo "== DEPLOY STACK NPM =="
+
+curl -s -X POST \
+  "$PORTAINER_URL/api/stacks/create/standalone/file?endpointId=$ENDPOINT_ID" \
   -H "Authorization: Bearer $TOKEN" \
   -F "Name=npm" \
-  -F "file=@npm-compose.yml")
+  -F "file=@$STACK_FILE"
 
-echo "DEBUG STACK RESPONSE:"
-echo "$RESPONSE_STACK"
-
-echo "✅ Stack NPM creado"
+echo "✅ Stack enviado correctamente"

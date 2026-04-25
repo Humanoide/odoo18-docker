@@ -6,7 +6,7 @@ USERNAME="admin"
 PASSWORD="000000000000"
 ENDPOINT_ID="3"
 STACK_NAME="odoo18"
-COMPOSE_FILE="docker-compose.yml"
+COMPOSE_FILE="odoo18-docker-compose.yml"
 
 echo "🚀 Iniciando despliegue Odoo 18 en Portainer..."
 

@@ -2,25 +2,29 @@
 set -euo pipefail
 
 CONTAINER="odoo18-web-1"
-SCRIPT_PATH="/mnt/extra-addons/requirements_oca.sh"
+ADDONS_PATH="/mnt/extra-addons"
+SCRIPT="requirements_oca.sh"
 
-echo "== Comprobando contenedor $CONTAINER =="
+echo "== Comprobando contenedor =="
 
-if ! docker ps --format '{{.Names}}' | grep -qx "$CONTAINER"; then
-  echo "❌ El contenedor $CONTAINER no está en ejecución"
+docker ps --format '{{.Names}}' | grep -qx "$CONTAINER" || {
+  echo "❌ Contenedor $CONTAINER no está activo"
+  exit 1
+}
+
+echo "== Ejecutando requirements OCA dentro del contenedor =="
+
+docker exec -i "$CONTAINER" bash -c "
+set -e
+cd '$ADDONS_PATH' || exit 1
+
+if [ ! -f '$SCRIPT' ]; then
+  echo '❌ No existe $SCRIPT en $ADDONS_PATH'
   exit 1
 fi
 
-echo "== Ejecutando script dentro del contenedor =="
-
-docker exec -it "$CONTAINER" bash -c "
-if [ ! -f '$SCRIPT_PATH' ]; then
-  echo '❌ No existe el script dentro del contenedor: $SCRIPT_PATH'
-  exit 1
-fi
-
-chmod +x '$SCRIPT_PATH'
-bash '$SCRIPT_PATH'
+echo '📦 Ejecutando requirements OCA...'
+bash '$SCRIPT'
 "
 
-echo "✔ Script ejecutado correctamente dentro de Odoo"
+echo "✔ Ejecución terminada"

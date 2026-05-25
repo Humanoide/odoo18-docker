@@ -1,67 +1,25 @@
-# prepare_modules_config.sh (actualizado)
+#!/bin/bash
 
-```bash
-#!/usr/bin/env bash
-set -euo pipefail
+set -e
 
-###############################################################################
-# CONFIGURACIÓN MÓDULOS ODOO 18
-# - Copia fichero de configuración de módulos
-# - Ejecuta instalación automática modules_install_18.txt
-###############################################################################
+echo "🚀 Creando estructura de addons..."
 
-#######################################
-# CONFIG
-#######################################
-SOURCE_FILE="./modules_install_18.txt"
-DEST_DIR="/opt/odoo/config"
-DEST_FILE="$DEST_DIR/modules_install_18.txt"
+mkdir -p /data/compose/1/addons/otros
 
-#######################################
-# CHECK ROOT
-#######################################
-if [[ "$(id -u)" -ne 0 ]]; then
-    echo "❌ Ejecuta como root"
-    exit 1
-fi
+echo "📦 Copiando módulos..."
+cp -r /root/odoo18-docker/login_user_detail /data/compose/1/addons/otros/ 2>/dev/null || true
+cp -r /root/odoo18-docker/supermodulo18 /data/compose/1/addons/otros/ 2>/dev/null || true
 
-#######################################
-# CREATE DEST
-#######################################
-mkdir -p "$DEST_DIR"
+echo "📄 Copiando scripts y ficheros de configuración..."
+cp /root/odoo18-docker/modules_install_18.txt /data/compose/1/addons/ 2>/dev/null || true
+cp /root/odoo18-docker/requirements_oca.sh /data/compose/1/addons/ 2>/dev/null || true
+cp /root/odoo18-docker/update_oca.sh /data/compose/1/addons/ 2>/dev/null || true
 
-#######################################
-# COPY FILE
-#######################################
-if [[ -f "$SOURCE_FILE" ]]; then
-    echo "== Copiando modules_install_18.txt =="
-    cp "$SOURCE_FILE" "$DEST_FILE"
-else
-    echo "❌ No existe $SOURCE_FILE"
-    exit 1
-fi
+echo "⚙️ Copiando configuración de Odoo..."
+mkdir -p /data/compose/1/config
+cp /root/odoo18-docker/odoo.conf /data/compose/1/config/
 
-#######################################
-# PERMISSIONS
-#######################################
-chmod +x "$DEST_FILE" || true
+echo "🔐 Ajustando permisos..."
+chmod 644 /data/compose/1/config/odoo.conf
 
-#######################################
-# EJECUCIÓN AUTOMÁTICA (NUEVO)
-#######################################
-# Ejecuta el fichero justo después de copiarlo
-
-echo "== Ejecutando instalación de módulos Odoo 18 =="
-
-if command -v bash >/dev/null 2>&1; then
-    bash "$DEST_FILE"
-else
-    echo "❌ bash no disponible"
-    exit 1
-fi
-
-#######################################
-# FIN
-#######################################
-echo "✔ Configuración de módulos completada"
-```
+echo "✅ Proceso finalizado correctamente"

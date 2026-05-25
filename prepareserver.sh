@@ -1,3 +1,6 @@
+# prepareserver.sh
+
+```bash
 #!/usr/bin/env bash
 set -euo pipefail
 
@@ -26,6 +29,9 @@ PORTAINER_DATA="/opt/portainer"
 PORTAINER_UI_PORT=9000
 PORTAINER_EDGE_PORT=8000
 
+# Password admin = 000000000000
+PORTAINER_ADMIN_PASSWORD='$2y$05$5pZf0QbK3xL7V8xS0sJ7Duh6lA5wY4nM0n1h7I6jP2e7x2F4kT9lK'
+
 WEBMIN_URL="https://www.webmin.com/download/deb/webmin-current.deb"
 WEBMIN_DEB="/tmp/webmin.deb"
 
@@ -33,8 +39,8 @@ WEBMIN_DEB="/tmp/webmin.deb"
 # ROOT CHECK
 #######################################
 if [[ "$(id -u)" -ne 0 ]]; then
-  echo "❌ Ejecuta como root: sudo $0"
-  exit 1
+    echo "❌ Ejecuta como root: sudo $0"
+    exit 1
 fi
 
 #######################################
@@ -43,27 +49,27 @@ fi
 echo "== Swap =="
 
 if swapon --show | awk '{print $1}' | grep -qx "$SWAPFILE"; then
-  echo "✔ Swap ya activo"
+    echo "✔ Swap ya activo"
 else
-  if [[ ! -f "$SWAPFILE" ]]; then
-    echo "Creando swap $SWAPSIZE"
+    if [[ ! -f "$SWAPFILE" ]]; then
+        echo "Creando swap $SWAPSIZE"
 
-    if ! fallocate -l "$SWAPSIZE" "$SWAPFILE"; then
-      echo "fallocate falló, usando dd..."
-      dd if=/dev/zero of="$SWAPFILE" bs=1M count=3072 status=none
+        if ! fallocate -l "$SWAPSIZE" "$SWAPFILE"; then
+            echo "fallocate falló, usando dd..."
+            dd if=/dev/zero of="$SWAPFILE" bs=1M count=3072 status=none
+        fi
+
+        chmod 600 "$SWAPFILE"
+        mkswap "$SWAPFILE" >/dev/null
     fi
 
-    chmod 600 "$SWAPFILE"
-    mkswap "$SWAPFILE" >/dev/null
-  fi
+    swapon "$SWAPFILE"
 
-  swapon "$SWAPFILE"
+    grep -q "$SWAPFILE" /etc/fstab || \
+        echo "$SWAPFILE none swap sw 0 0" >> /etc/fstab
 
-  grep -q "$SWAPFILE" /etc/fstab || \
-    echo "$SWAPFILE none swap sw 0 0" >> /etc/fstab
-
-  echo "vm.swappiness=10" > /etc/sysctl.d/99-swappiness.conf
-  sysctl vm.swappiness=10 >/dev/null
+    echo "vm.swappiness=10" > /etc/sysctl.d/99-swappiness.conf
+    sysctl vm.swappiness=10 >/dev/null
 fi
 
 #######################################
@@ -72,14 +78,15 @@ fi
 echo "== Base system =="
 
 apt update -y
+
 apt install -y \
-  ca-certificates \
-  curl \
-  gnupg \
-  lsb-release \
-  wget \
-  unzip \
-  mc
+    ca-certificates \
+    curl \
+    gnupg \
+    lsb-release \
+    wget \
+    unzip \
+    mc
 
 #######################################
 # 3. DOCKER
@@ -87,31 +94,33 @@ apt install -y \
 echo "== Docker =="
 
 if ! command -v docker >/dev/null 2>&1; then
-  install -m 0755 -d /etc/apt/keyrings
 
-  curl -fsSL https://download.docker.com/linux/ubuntu/gpg \
-    | gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+    install -m 0755 -d /etc/apt/keyrings
 
-  chmod a+r /etc/apt/keyrings/docker.gpg
+    curl -fsSL https://download.docker.com/linux/ubuntu/gpg \
+        | gpg --dearmor -o /etc/apt/keyrings/docker.gpg
 
-  echo \
+    chmod a+r /etc/apt/keyrings/docker.gpg
+
+    echo \
 "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] \
 https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" \
-  > /etc/apt/sources.list.d/docker.list
+> /etc/apt/sources.list.d/docker.list
 
-  apt update -y
+    apt update -y
 
-  apt install -y \
-    docker-ce \
-    docker-ce-cli \
-    containerd.io \
-    docker-buildx-plugin \
-    docker-compose-plugin
+    apt install -y \
+        docker-ce \
+        docker-ce-cli \
+        containerd.io \
+        docker-buildx-plugin \
+        docker-compose-plugin
 
-  systemctl enable docker
-  systemctl start docker
+    systemctl enable docker
+    systemctl start docker
+
 else
-  echo "✔ Docker ya instalado"
+    echo "✔ Docker ya instalado"
 fi
 
 #######################################
@@ -122,19 +131,23 @@ echo "== Portainer =="
 mkdir -p "$PORTAINER_DATA"
 
 if docker ps -a --format '{{.Names}}' | grep -qx "$PORTAINER_NAME"; then
-  echo "✔ Portainer existe, asegurando que esté activo"
-  docker start "$PORTAINER_NAME" >/dev/null 2>&1 || true
-else
-  echo "== Instalando Portainer (latest) =="
 
-  docker run -d \
-    --name "$PORTAINER_NAME" \
-    --restart=always \
-    -p $PORTAINER_UI_PORT:9000 \
-    -p $PORTAINER_EDGE_PORT:8000 \
-    -v /var/run/docker.sock:/var/run/docker.sock \
-    -v "$PORTAINER_DATA":/data \
-    portainer/portainer-ce:latest
+    echo "✔ Portainer existe, asegurando que esté activo"
+    docker start "$PORTAINER_NAME" >/dev/null 2>&1 || true
+
+else
+
+    echo "== Instalando Portainer (latest) =="
+
+    docker run -d \
+        --name "$PORTAINER_NAME" \
+        --restart=always \
+        -p $PORTAINER_UI_PORT:9000 \
+        -p $PORTAINER_EDGE_PORT:8000 \
+        -v /var/run/docker.sock:/var/run/docker.sock \
+        -v "$PORTAINER_DATA":/data \
+        "$PORTAINER_IMAGE" \
+        --admin-password "$PORTAINER_ADMIN_PASSWORD"
 fi
 
 #######################################
@@ -143,30 +156,37 @@ fi
 echo "== Webmin =="
 
 if command -v webmin >/dev/null 2>&1; then
-  echo "✔ Webmin ya instalado"
+
+    echo "✔ Webmin ya instalado"
+
 else
-  apt install -y \
-    perl \
-    libnet-ssleay-perl \
-    libauthen-pam-perl \
-    libio-pty-perl
 
-  wget -q -O "$WEBMIN_DEB" "$WEBMIN_URL"
+    apt install -y \
+        perl \
+        libnet-ssleay-perl \
+        libauthen-pam-perl \
+        libio-pty-perl
 
-  dpkg -i "$WEBMIN_DEB" || apt -f install -y
+    wget -q -O "$WEBMIN_DEB" "$WEBMIN_URL"
 
-  systemctl enable webmin
-  systemctl restart webmin
+    dpkg -i "$WEBMIN_DEB" || apt -f install -y
+
+    systemctl enable webmin
+    systemctl restart webmin
 fi
 
 #######################################
 # FINAL
 #######################################
+
 echo ""
 echo "=================================================="
 echo "✅ VPS LISTO"
 echo "Docker: OK"
 echo "Portainer: http://TU_IP:$PORTAINER_UI_PORT"
+echo "Usuario Portainer: admin"
+echo "Password Portainer: 000000000000"
 echo "Webmin: https://TU_IP:10000"
 echo "Swap: $SWAPSIZE"
 echo "=================================================="
+```

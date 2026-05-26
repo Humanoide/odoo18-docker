@@ -9,7 +9,7 @@
 #   4. prepare_modules_config.sh  → fichero de config + módulos OCA
 #   5. execute_modules_install.sh → clona repositorios OCA
 #   6. execute_requirements.sh    → instala librerías Python en el contenedor
-#   7. deploy_npm_portainer.sh    → instala Nginx Proxy Manager
+#   7. deploy-npm-portainer.sh    → instala Nginx Proxy Manager
 # =============================================================================
 
 set -euo pipefail
@@ -36,7 +36,7 @@ SCRIPTS=(
     "prepare_modules_config.sh"
     "execute_modules_install.sh"
     "execute_requirements.sh"
-    "deploy_npm_portainer.sh"
+    "deploy-npm-portainer.sh"
 )
 
 # ─── Funciones de utilidad ───────────────────────────────────────────────────
@@ -208,7 +208,7 @@ main() {
 
     # ── PASO 7: Instalar Nginx Proxy Manager ──────────────────────────────────
     step "PASO 7 de 7 – Instalar Nginx Proxy Manager"
-    run_script "deploy_npm_portainer.sh"
+    run_script "deploy-npm-portainer.sh"
 
     # ── Resumen ───────────────────────────────────────────────────────────────
     show_summary

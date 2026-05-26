@@ -3,12 +3,13 @@
 #  instala-odoo18.sh  –  Orquestador de instalación de Odoo 18 con Docker
 # =============================================================================
 #  Orden de ejecución:
-#   1. prepareserver.sh          → swap, mc, docker, docker-compose, portainer, webmin
-#   2. PAUSA MANUAL              → el usuario fija la contraseña de Portainer en :9000
+#   1. prepareserver.sh           → swap, mc, docker, docker-compose, portainer, webmin
+#   2. PAUSA MANUAL               → el usuario fija la contraseña de Portainer en :9000
 #   3. deploy-odoo18-portainer.sh → instalación base de Odoo
 #   4. prepare_modules_config.sh  → fichero de config + módulos OCA
 #   5. execute_modules_install.sh → clona repositorios OCA
 #   6. execute_requirements.sh    → instala librerías Python en el contenedor
+#   7. deploy_npm_portainer.sh    → instala Nginx Proxy Manager
 # =============================================================================
 
 set -euo pipefail
@@ -35,6 +36,7 @@ SCRIPTS=(
     "prepare_modules_config.sh"
     "execute_modules_install.sh"
     "execute_requirements.sh"
+    "deploy_npm_portainer.sh"
 )
 
 # ─── Funciones de utilidad ───────────────────────────────────────────────────
@@ -94,7 +96,7 @@ run_script() {
 
 # Pausa interactiva para que el usuario configure Portainer
 wait_for_portainer() {
-    step "PASO 2 de 6 – Configuración manual de Portainer"
+    step "PASO 2 de 7 – Configuración manual de Portainer"
 
     log ""
     log "${YELLOW}┌─────────────────────────────────────────────────────────────┐${RESET}"
@@ -153,6 +155,7 @@ show_summary() {
     log "    • Portainer (gestión de contenedores)"
     log "    • Webmin (administración del servidor)"
     log "    • Módulos OCA + librerías Python"
+    log "    • Nginx Proxy Manager (proxy inverso)"
     log ""
     log "  Portainer:  ${PORTAINER_URL}"
     log "  Log completo: ${LOG_FILE}"
@@ -181,27 +184,31 @@ main() {
     done
 
     # ── PASO 1: Preparar el servidor ─────────────────────────────────────────
-    step "PASO 1 de 6 – Preparar servidor (swap, docker, portainer, webmin)"
+    step "PASO 1 de 7 – Preparar servidor (swap, docker, portainer, webmin)"
     run_script "prepareserver.sh"
 
     # ── PASO 2: Pausa manual – contraseña de Portainer ────────────────────────
     wait_for_portainer
 
     # ── PASO 3: Desplegar Odoo 18 vía Portainer ───────────────────────────────
-    step "PASO 3 de 6 – Desplegar Odoo 18 en Portainer"
+    step "PASO 3 de 7 – Desplegar Odoo 18 en Portainer"
     run_script "deploy-odoo18-portainer.sh"
 
     # ── PASO 4: Configuración y módulos OCA ───────────────────────────────────
-    step "PASO 4 de 6 – Añadir fichero de configuración y módulos OCA"
+    step "PASO 4 de 7 – Añadir fichero de configuración y módulos OCA"
     run_script "prepare_modules_config.sh"
 
     # ── PASO 5: Clonar repositorios OCA ──────────────────────────────────────
-    step "PASO 5 de 6 – Descargar repositorios OCA"
+    step "PASO 5 de 7 – Descargar repositorios OCA"
     run_script "execute_modules_install.sh"
 
     # ── PASO 6: Instalar librerías Python en el contenedor ────────────────────
-    step "PASO 6 de 6 – Cargar librerías Python en el contenedor de Odoo"
+    step "PASO 6 de 7 – Cargar librerías Python en el contenedor de Odoo"
     run_script "execute_requirements.sh"
+
+    # ── PASO 7: Instalar Nginx Proxy Manager ──────────────────────────────────
+    step "PASO 7 de 7 – Instalar Nginx Proxy Manager"
+    run_script "deploy_npm_portainer.sh"
 
     # ── Resumen ───────────────────────────────────────────────────────────────
     show_summary

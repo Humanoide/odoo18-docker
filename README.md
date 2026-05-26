@@ -8,3 +8,6 @@
 5. Ejecuta el script **execute_modules_install.sh** que descarga repositorios oca
 6. Ejecuta el script **execute_requirements.sh** que carga las librerias python en el contenedor de odoo.
 7. Ejecuta el script **deploy-npm-portainer.sh** que instala nginx proxy manager
+
+## Contraseñas
+Posteriormente hay que cambiar las contraseñas. Estas se pueden obtener con el script **hoja_claves.sh**

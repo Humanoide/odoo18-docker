@@ -5,3 +5,5 @@
 2. Se detiene y nos invita a crearle la **contraseña provisional a portainer**, debe ser 000000000000 , (doce ceros). Para ello debemos ir a http://[ipdelamaquina]:9000
 3. Ejecuta el script **deploy-odoo18-portainer.sh** que hace una instalación de odoo
 4. Ejecuta el script **prepare_modules_config.sh** que añade fichero de configuracion y modulos OCA a la instalación de odoo
+5. Ejecuta el script **execute_modules_install.sh** que descarga repositorios oca
+6. Ejecuta el script **execute_requirements.sh** que carga las librerias python en el contenedor de odoo.

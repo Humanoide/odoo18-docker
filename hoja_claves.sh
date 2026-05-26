@@ -24,12 +24,10 @@ if [[ -z "$ODOO_VERSION" ]]; then
   exit 1
 fi
 
-read -r -p "IP de la máquina (ej: 192.168.1.100): " IP_MAQUINA
+IP_MAQUINA="$(hostname -I | awk '{print $1}')"
 
-IP_MAQUINA="$(echo "$IP_MAQUINA" | tr -cd '0-9.')"
-
-if [[ -z "$IP_MAQUINA" || ! "$IP_MAQUINA" =~ ^([0-9]{1,3}\.){3}[0-9]{1,3}$ ]]; then
-  echo "IP inválida. Debe tener formato: XXX.XXX.XXX.XXX" >&2
+if [[ -z "$IP_MAQUINA" ]]; then
+  echo "No se pudo detectar la IP de la máquina." >&2
   exit 1
 fi
 

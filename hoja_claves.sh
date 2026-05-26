@@ -24,6 +24,15 @@ if [[ -z "$ODOO_VERSION" ]]; then
   exit 1
 fi
 
+read -r -p "IP de la máquina (ej: 192.168.1.100): " IP_MAQUINA
+
+IP_MAQUINA="$(echo "$IP_MAQUINA" | tr -cd '0-9.')"
+
+if [[ -z "$IP_MAQUINA" || ! "$IP_MAQUINA" =~ ^([0-9]{1,3}\.){3}[0-9]{1,3}$ ]]; then
+  echo "IP inválida. Debe tener formato: XXX.XXX.XXX.XXX" >&2
+  exit 1
+fi
+
 read -r -p "Dominio base (ej: aplicacionodoo.com): " BASE_DOMAIN
 
 BASE_DOMAIN="$(echo "$BASE_DOMAIN" | tr '[:upper:]' '[:lower:]' | tr -cd 'a-z0-9.-')"
@@ -89,6 +98,7 @@ ODOO_VERSION: ${ODOO_VERSION}
 INSTANCIA: ${INSTANCE_NUM}
 BASE_DOMAIN: ${BASE_DOMAIN}
 NOMBRE_MAQUINA: ${MACHINE_NAME}
+IP_MAQUINA: ${IP_MAQUINA}
 
 DOMINIOS:
   - ODOO:      ${PROJECT}.${BASE_DOMAIN}

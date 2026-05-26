@@ -1,16 +1,20 @@
-#!/usr/bin/env bash
-set -euo pipefail
+while IFS= read -r line || [ -n "$line" ]; do
 
-FILE="/data/compose/1/addons/modules_install_18.txt"
+    [[ -z "$line" || "$line" == \#* ]] && continue
 
-echo "== Ejecutando: $FILE =="
+    repo=$(echo "$line" | awk '{for(i=1;i<=NF;i++) if ($i ~ /^https?:\/\//) print $i}')
+    repo=$(echo "$repo" | tr -d '\r' | xargs)
 
-if [[ ! -f "$FILE" ]]; then
-  echo "❌ No existe el fichero: $FILE"
-  exit 1
-fi
+    if [ -z "$repo" ]; then
+        echo "Línea ignorada: $line"
+        continue
+    fi
 
-# Ejecuta el TXT como script bash
-bash "$FILE"
+    name=$(basename "$repo" .git)
+    dest="/data/compose/1/addons/$name"
 
-echo "✔ Ejecución terminada"
+    echo "Clonando (rápido): $repo"
+
+    git clone --depth 1 --single-branch -b 18.0 "$repo" "$dest"
+
+done < modules_install_18.txt

@@ -33,6 +33,7 @@ Long description of module's purpose
     'account_edi',
     'account_edi_proxy_client',
     'account_edi_ubl_cii',
+    'account_financial_report',
     'account_invoice_line_report',
     'account_invoice_overdue_warn',
     'account_invoice_refund_link',

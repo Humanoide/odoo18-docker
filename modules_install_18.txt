@@ -54,3 +54,4 @@ git clone -b 18.0 https://github.com/OCA/field-service.git
 git clone -b 18.0 https://github.com/OCA/spreadsheet.git
 git clone -b 18.0 https://github.com/OCA/sign.git
 git clone -b 18.0 https://github.com/OCA/agreement.git
+git clone -b 18.0 https://github.com/OCA/delivery-carrier.git

@@ -10,6 +10,7 @@ ODOO_CONF="/etc/odoo/odoo.conf"
 DB_HOST="db"
 DB_USER="odoo"
 DB_PASSWORD="odoo"
+ADMIN_PWD="000000000000"
 MODULOS_FILE="$(dirname "${BASH_SOURCE[0]}")/modulos_plantilla.txt"
 
 if [[ ! -f "$MODULOS_FILE" ]]; then
@@ -42,8 +43,16 @@ echo ""
 echo "== Instalando módulos en BD '$DB' =="
 echo "   $(echo $MODULOS | tr ',' '\n' | wc -l) módulos"
 echo ""
-
 docker exec -i "$CONTAINER" bash -c "$ODOO_CMD -d $DB -i $MODULOS 2>&1"
+
+echo ""
+echo "== Restaurando contraseña admin =="
+docker exec -i "$CONTAINER" odoo shell -d "$DB" --no-http \
+    --db_host=$DB_HOST --db_user=$DB_USER --db_password=$DB_PASSWORD << PYEOF
+env['res.users'].browse(2).write({'password': '$ADMIN_PWD'})
+env.cr.commit()
+PYEOF
+echo "✔ Contraseña admin restaurada a los doce ceros"
 
 echo ""
 echo "✔ Instalación de módulos completada"

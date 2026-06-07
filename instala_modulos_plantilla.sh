@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # =============================================================================
-# instala_modulos_plantilla.sh – Instala módulos en la BD plantilla de Odoo 19
+# instala_modulos_plantilla.sh – Instala módulos en la BD plantilla de Odoo 18
 # =============================================================================
 
 CONTAINER="odoo18-web-1"

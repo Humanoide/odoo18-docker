@@ -4,7 +4,7 @@
 # instala_modulos_plantilla.sh – Instala módulos en la BD plantilla de Odoo 19
 # =============================================================================
 
-CONTAINER="odoo19-web-1"
+CONTAINER="odoo18-web-1"
 DB="plantilla"
 ODOO_CONF="/etc/odoo/odoo.conf"
 DB_HOST="db"

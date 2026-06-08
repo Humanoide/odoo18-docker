@@ -1,0 +1,1 @@
+python3 -m pip install pydantic mcp jinja2 --break-system-packages --ignore-installed --no-cache-dir
